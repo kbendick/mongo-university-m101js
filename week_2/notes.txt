@@ -1,0 +1,108 @@
+m101js - week 2 notes:
+
+// .find(query_document, projection_document}
+
+// Example - match all documents with year 2013 and return only the title and
+//           year field, excluding the _id field
+db.movies.find( { "year": 2013}, {"title": 1, "year": 1, "_id": 0})
+
+
+// Comparison operators
+// Example - match year >= 2013
+db.movies.find( { "year": {$gte: 2013} })
+
+
+// Element operators
+$exists and $type
+	-- {$exists : true}
+
+	-- {$type : "string"}
+
+// Logical operators
+$or and $and
+
+	-- .find( { $or : [ { "year": { $gt: 2008} }, 
+						{ "actors" : "Ryan Reynolds" } ] } )
+
+	-- $and - specify multiple constraints on same field
+				- recall that query document implicitly ANDs fields
+				- only need $and to repeat a field for further clarification
+				- {$and : [ {"metacritic": {$ne: null}}, 
+				            {"metacritic": {$exists: true}} ]}
+
+// Regex operators
+	{"awards.text": { $regex : /^Won\s.*/ }}
+
+
+// Array Operators
+	$all - match arrays that contain all elements specified in query array
+
+	$size - match documents based on length of array
+		{countries: {$size: 1}}
+
+	$elemMatch - select documents if element in the array field matches all
+	             of the specified conditions.
+
+
+
+
+// Updating commands 
+	.updateOne(filter document, update command)
+		- update only one (the first document retrieved matching the filter)
+	.updateMany(filter doc, update command)
+		- update all documents retrieved matching the filter.
+	.replaceOne(filter doc, new desired document for replacement)
+
+- provide a filter / selector document
+- update command document
+	 { $set : { "poster": "URL-to-Poster" }}
+
+
+- see documentation for all update operators
+	$inc -> increment by a certain amount
+	$mul -> multiply by a certain amount
+
+		.updateOne({title: "The Martian"},
+                   { $inc: { "tomato.reviews": 3, "tomato.userReviews": 25 } })
+
+	$push -> push element(s) onto an array
+		$each -> push each document given (in args array) as a different array element
+				 in collection
+		$slice -> perform all push(es), and then save only the amount specified by slice
+				  ~ negative (-) numbers for end of array
+				  ~ positive (+) numbers for front of array
+		$position -> position where the push should occur
+					~ usefulf or pushing to front of list (default is rear)
+
+
+		// push to front of array
+		db.movieDetails.updateOne({ title: "The Martian" },
+	                          {$push: { reviews:
+	                                    { $each: [
+	                                        { rating: 0.5,
+	                                          date: ISODate("2016-01-13T07:00:00Z"),
+	                                          reviewer: "Shannon B.",
+	                                          text: "Enjoyed watching with my kids!" } ],
+	                                      $position: 0,
+	                                      $slice: 5 } } } )
+
+
+    $unset -> remove a specified field from a matched document
+    			~ remember: to find docs that do not contain a field, we can use a filter
+    			            document where the specified field "has a value" of null.
+    			{$unset: { fieldName: "" } } // empty string because it needs some value.
+
+
+    // Upserts - update used to create a document if none matches the specified filter.
+    			~ useful to ensure no duplicates when adding data (e.g. via a script, etc)
+
+    			// Example - insert a document if it's not yet in the database.
+    			// var detail is the JSON of a document to insert.
+    			db.movieDetails.updateOne(
+				    {"imdb.id": detail.imdb.id},		// upsert will fail if found.
+				    {$set: detail},
+				    {upsert: true});
+
+
+
+
