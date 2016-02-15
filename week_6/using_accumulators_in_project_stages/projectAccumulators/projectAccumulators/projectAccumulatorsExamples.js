@@ -1,3 +1,13 @@
+// Using accumulators in project stages
+//
+// accumulators added to project stages in mongo32
+
+// in $project stage, can only use accumulators on values within
+//  an individual document
+
+
+// find the array element with the $max element and then 
+//  project that $max value onto the field
 db.companies.aggregate([
     { $match: { "funding_rounds": { $exists: true, $ne: [ ]} } },
     { $project: {
