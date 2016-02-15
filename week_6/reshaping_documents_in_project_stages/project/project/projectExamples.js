@@ -19,7 +19,7 @@ db.companies.aggregate([
 ]).pretty()
 
 
-// Constructing a new document (nested in this case) with fields
+// Constructing a new document (nested) with top-leve fields
 // from the matched documents
 db.companies.aggregate([
     { $match: {"funding_rounds.investments.financial_org.permalink": "greylock" } },
@@ -43,6 +43,16 @@ db.companies.aggregate([
         people: "$relationships.person.last_name"
     } }
 ]).pretty()
-     
 
+// Query used to answer quiz question:
+db.companies.aggregate([
+    { $match: {
+        name: "Facebook"
+    } },
+    { $project: {
+        _id: 0, 
+        name: 1,
+        people: "$relationships.person.last_name"
+    } }
+])
 
