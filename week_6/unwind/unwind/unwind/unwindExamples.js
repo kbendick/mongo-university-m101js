@@ -1,3 +1,10 @@
+// $unwind - allows us to take documents with input containing an array field
+//           and produce as output one document for each element in the array.
+//
+//     produces an exact copy of each document received (same key/values for
+//     each field), except the unwind field will be a single element from the
+//     given array and a document for each element in the unwind array.
+
 db.companies.aggregate([
     { $match: {"funding_rounds.investments.financial_org.permalink": "greylock" } },
     { $project: {
@@ -24,6 +31,10 @@ db.companies.aggregate([
 
 
 // Add funder to output documents.
+//
+// Note that we're getting all the companies for which greylock participated
+// in a funding round (but some of these funding rounds might not include
+// greylock).
 db.companies.aggregate([
     { $match: {"funding_rounds.investments.financial_org.permalink": "greylock" } },
     { $unwind: "$funding_rounds" },
@@ -39,10 +50,17 @@ db.companies.aggregate([
 
 
 // Add second unwind stage.
+//
+// Attempting to match documents where greylock appears in every funding
+// round.
+//
+// The first match is important to filter the # of docs that we look at
+// initially. This is shown in a later example....
 db.companies.aggregate([
     { $match: {"funding_rounds.investments.financial_org.permalink": "greylock" } },
     { $unwind: "$funding_rounds" },
     { $unwind: "$funding_rounds.investments" },
+    { $match: {"funding_rounds.investments.financial_org.permalink": "greylock" } },
     { $project: {
         _id: 0,
         name: 1,

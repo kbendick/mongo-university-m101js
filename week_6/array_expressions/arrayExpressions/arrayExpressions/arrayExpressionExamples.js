@@ -1,3 +1,25 @@
+// array expresions
+//
+// particularly in project stage
+
+// $ filter - select a subset of the elements in an array
+//            based on a certain filter.
+
+// $arrayElemAt - pull out a specific element
+
+// $slice - get a slice of an array
+
+// $size - returns length of the array.
+
+
+// $ filter example -
+//      input - the array to use (can also be array literal)
+//      as    - needed as we may have specified an anonymous array literal
+//      cond  - filter
+//              $$ dereference a variable that is defined in this
+//                 expression
+//            - helps to distinguish between variables specified
+//              in this stage (e.g. in "as") vs actual field values.
 db.companies.aggregate([
     { $match: {"funding_rounds.investments.financial_org.permalink": "greylock" } },
     { $project: {
@@ -15,7 +37,10 @@ db.companies.aggregate([
 
 
 
-
+// $arrayElemAt
+//
+//   specify a value for the elements to be assigned to,
+//   specify the element to be pulled out (can use negative index)
 db.companies.aggregate([
     { $match: { "founded_year": 2010 } },
     { $project: {
@@ -28,6 +53,10 @@ db.companies.aggregate([
 ]).pretty()
 
 
+// $slice - can also be used for arrayElemAt
+//
+//    if value is +: give me that many starting at the beginning
+//    if value is -: give me that many starting from the end. 
 db.companies.aggregate([
     { $match: { "founded_year": 2010 } },
     { $project: {
@@ -40,7 +69,9 @@ db.companies.aggregate([
 ]).pretty()
 
 
-
+// $slice
+//
+// begin at index 1 and take the next 3
 db.companies.aggregate([
     { $match: { "founded_year": 2010 } },
     { $project: {
