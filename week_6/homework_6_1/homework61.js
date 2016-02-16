@@ -10,7 +10,7 @@ db.companies.aggregate( [
     } },
     { $unwind: "$relationships" },
     { $group: {
-        _id: "$relationships.person",
+        _id: {person: "$relationships.person"},
         unique_companies: {$addToSet: "$company_name"}
     } },
     { $project: {

@@ -28,14 +28,8 @@ db.grades.aggregate( [
         avg_score: { $avg: "$scores.score" }
     } },
     { $group: {
-        _id: "$class_id",
+        _id: {class_id: "$class_id"},
         avg_student_score: { $avg: "$avg_score" }
     } },
-    { $sort: { "avg_student_score": -1 } },
-    { $limit: 1 },
-    { $project: {
-        _id: 0,
-        class_id: "$_id",
-        avg_student_score: 1
-    } }
+    { $sort: { "avg_student_score": -1 } }
 ] );
